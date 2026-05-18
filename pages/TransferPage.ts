@@ -3,12 +3,12 @@ import { Page, Locator, expect } from '@playwright/test';
 export class TransferPage {
   readonly page: Page;
 
-  readonly amountInput:      Locator;
+  readonly amountInput:       Locator;
   readonly fromAccountSelect: Locator;
   readonly toAccountSelect:   Locator;
   readonly transferButton:    Locator;
-  readonly successMessage:    Locator;
-  readonly transferredAmount: Locator;
+  readonly successHeading:    Locator;
+  readonly resultPanel:       Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -17,44 +17,71 @@ export class TransferPage {
     this.fromAccountSelect = page.locator('#fromAccountId');
     this.toAccountSelect   = page.locator('#toAccountId');
     this.transferButton    = page.locator('input[value="Transfer"]');
-    this.successMessage    = page.locator('#showResult h1');
-    this.transferredAmount = page.locator('#showResult .ng-binding').first();
+    this.successHeading    = page.locator('#showResult h1');
+    this.resultPanel       = page.locator('#showResult');
   }
+
+  // ── Navigation ───────────────────────────────────────────────
 
   async goto() {
     await this.page.goto('/parabank/transfer.htm');
   }
 
-  async transferFunds(amount: string, fromIndex: number = 0, toIndex: number = 1) {
-    await expect(this.fromAccountSelect).toBeVisible({ timeout: 15000 });
-    await expect(this.toAccountSelect).toBeVisible({ timeout: 15000 });
+  // ── Actions ──────────────────────────────────────────────────
 
+  async transferFunds(
+    amount: string,
+    fromIndex: number = 0,
+    toIndex: number  = 1
+  ) {
+    // Wait for both dropdowns to load via AJAX
+    await expect(this.fromAccountSelect)
+      .toBeVisible({ timeout: 15000 });
+    await expect(this.toAccountSelect)
+      .toBeVisible({ timeout: 15000 });
+
+    // Fill amount
     await this.amountInput.fill(amount);
 
-    // Select source and destination accounts by position
-    const fromOptions = await this.fromAccountSelect.locator('option').all();
-    const toOptions   = await this.toAccountSelect.locator('option').all();
-
+    // Select FROM account by position
+    const fromOptions = await this.fromAccountSelect
+      .locator('option').all();
     if (fromOptions.length > fromIndex) {
-      const fromValue = await fromOptions[fromIndex].getAttribute('value');
+      const fromValue = await fromOptions[fromIndex]
+        .getAttribute('value');
       await this.fromAccountSelect.selectOption(fromValue ?? '');
     }
 
+    // Select TO account by position
+    const toOptions = await this.toAccountSelect
+      .locator('option').all();
     if (toOptions.length > toIndex) {
-      const toValue = await toOptions[toIndex].getAttribute('value');
+      const toValue = await toOptions[toIndex]
+        .getAttribute('value');
       await this.toAccountSelect.selectOption(toValue ?? '');
     }
 
     await this.transferButton.click();
   }
 
+  // ── Assertions ───────────────────────────────────────────────
+
   async expectTransferSuccessful() {
-    await expect(this.successMessage)
+    await expect(this.successHeading)
       .toContainText('Transfer Complete!', { timeout: 15000 });
   }
 
   async expectTransferAmount(amount: string) {
-    await expect(this.page.locator('#showResult'))
+    await expect(this.resultPanel)
       .toContainText(amount, { timeout: 10000 });
+  }
+
+  async expectTransferFormVisible() {
+    await expect(this.amountInput)
+      .toBeVisible({ timeout: 10000 });
+    await expect(this.fromAccountSelect)
+      .toBeVisible({ timeout: 10000 });
+    await expect(this.toAccountSelect)
+      .toBeVisible({ timeout: 10000 });
   }
 }

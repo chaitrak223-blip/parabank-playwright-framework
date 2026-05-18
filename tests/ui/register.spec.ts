@@ -11,7 +11,7 @@ test.describe('Registration', () => {
     await registerPage.goto();
     await registerPage.fillForm(user);
     await registerPage.submitForm();
-    //await registerPage.expectRegistrationSuccessful(user.username);
+    await registerPage.expectRegistrationSuccessful(user.username);
     console.log("Generated username:", user.username);
   });
 
