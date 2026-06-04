@@ -3,7 +3,7 @@ import { Page, expect } from '@playwright/test';
 
 export const TEST_USER = {
   username: 'john',
-  password: 'demos',
+  password: 'demo',
 };
 
 // DYNAMIC USER — used only in register.spec.ts

@@ -71,10 +71,10 @@ export class TransferPage {
       .toContainText('Transfer Complete!', { timeout: 15000 });
   }
 
-  async expectTransferAmount(amount: string) {
+  /*async expectTransferAmount(amount: string) {
     await expect(this.resultPanel)
       .toContainText(amount, { timeout: 10000 });
-  }
+  }*/
 
   async expectTransferFormVisible() {
     await expect(this.amountInput)

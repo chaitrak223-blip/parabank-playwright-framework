@@ -15,10 +15,7 @@ export class OpenAccountPage {
     // Dropdowns
     this.accountTypeSelect = page.locator('#type');
     this.fromAccountSelect = page.locator('#fromAccountId');
-
-    // Button - Playwright best practice
     this.openAccountButton = page.locator('#openAccountForm > form > div > input');
-
     // Scope locator to success section to avoid hidden duplicate IDs
     this.newAccountId = page
       .locator('#openAccountResult')
@@ -41,12 +38,10 @@ export class OpenAccountPage {
 
     // CHECKING = value 0
     await this.accountTypeSelect.selectOption('0');
-     await this.fromAccountSelect.selectOption('1');
-
-await this.openAccountButton.click();
-   
-
-    await this.expectAccountOpenedSuccessfully();
+    // Select first available account
+    await this.fromAccountSelect.selectOption({ index: 0 });
+     await this.openAccountButton.click();
+   await this.expectAccountOpenedSuccessfully();
 
     return await this.getNewAccountId();
   }
@@ -56,7 +51,7 @@ await this.openAccountButton.click();
 
     // SAVINGS = value 1
     await this.accountTypeSelect.selectOption('1');
-
+      await this.fromAccountSelect.selectOption({ index: 0 });
     await this.openAccountButton.click();
 
     await this.expectAccountOpenedSuccessfully();
